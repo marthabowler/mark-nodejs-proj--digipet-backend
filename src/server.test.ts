@@ -2,6 +2,7 @@ import supertest from "supertest";
 import {
   feedDigipet,
   hatchDigipet,
+  ignoreDigipet,
   trainDigipet,
   walkDigipet,
 } from "./digipet/controller";
@@ -114,7 +115,7 @@ describe("action routes", () => {
     }
   });
 
-  describe.skip("GET /digipet/feed", () => {
+  describe("GET /digipet/feed", () => {
     test("if the user has a digipet, it calls the feedDigipet controller and responds with a message about feeding the digipet", async () => {
       // setup: reset digipet
       setDigipet(INITIAL_DIGIPET);
@@ -144,7 +145,7 @@ describe("action routes", () => {
     });
   });
 
-  describe.skip("GET /digipet/train", () => {
+  describe("GET /digipet/train", () => {
     test("if the user has a digipet, it calls the trainDigipet controller and responds with a message about training the digipet", async () => {
       // setup: reset digipet
       setDigipet(INITIAL_DIGIPET);
@@ -202,5 +203,51 @@ describe("action routes", () => {
       // assert
       expect(walkDigipet).toHaveBeenCalledTimes(1);
     });
+  });
+});
+
+describe("GET /digipet/ignore", () => {
+  test("if the user has a digipet, it calls the ignoreDigipet controller and responds with a message about ignoring the digipet", async () => {
+    // setup: reset digipet
+    setDigipet(INITIAL_DIGIPET);
+
+    const response = await supertest(app).get("/digipet/ignore");
+
+    // response includes a relevant message
+    expect(response.body.message).toMatch(/ignore/i);
+
+    // response includes digipet data
+    expect(response.body.digipet).toHaveProperty("happiness");
+    expect(response.body.digipet).toHaveProperty("nutrition");
+    expect(response.body.digipet).toHaveProperty("discipline");
+  });
+
+  it("delegates state change to the ignoreDigipet function", async () => {
+    // setup: reset digipet and mock function
+    setDigipet(INITIAL_DIGIPET);
+
+    if (jest.isMockFunction(ignoreDigipet) /* type guard */) {
+      ignoreDigipet.mockReset();
+    }
+    // act
+    await supertest(app).get("/digipet/ignore");
+    // assert
+    expect(ignoreDigipet).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("GET /digipet/rehome", () => {
+  test("if the user has a digipet, it rehomes the user's digipet", async () => {
+    setDigipet(INITIAL_DIGIPET);
+    const response = await supertest(app).get("/digipet/rehome");
+    expect(response.body.digipet).not.toBeDefined();
+    expect(response.body.message).toMatch(/rehome/i);
+  });
+
+  test("if the user has no digipet, it responds with a message about not having a digipet", async () => {
+    setDigipet(undefined);
+    const response = await supertest(app).get("/digipet/rehome");
+    expect(response.body.digipet).not.toBeDefined();
+    expect(response.body.message).toMatch(/don't have/i);
   });
 });

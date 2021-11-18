@@ -1,12 +1,14 @@
 import {
   feedDigipet,
   hatchDigipet,
+  ignoreDigipet,
+  rehomeDigipet,
   trainDigipet,
   walkDigipet,
 } from "./controller";
 import { getDigipet, INITIAL_DIGIPET, setDigipet } from "./model";
 
-describe.skip("feedDigipet", () => {
+describe("feedDigipet", () => {
   it("increases digipet nutrition by 10 and decreases discipline by 5", () => {
     // setup
     setDigipet(INITIAL_DIGIPET);
@@ -68,7 +70,28 @@ describe("hatchDigipet", () => {
   });
 });
 
-describe.skip("trainDigipet", () => {
+describe("rehomeDigipet", () => {
+  test("when there is a digipet, it rehomes it", () => {
+    // setup
+    setDigipet({ happiness: 50, nutrition: 50, discipline: 50 });
+
+    // act
+    const digipet = rehomeDigipet();
+
+    // assert
+    expect(digipet).toStrictEqual(undefined);
+  });
+
+  test("when there isn't a current digipet, it throws an error", () => {
+    // setup
+    setDigipet(undefined);
+
+    // assert error gets thrown
+    expect(() => rehomeDigipet()).toThrowError();
+  });
+});
+
+describe("trainDigipet", () => {
   it("increases digipet discipline by 10 and decreases happiness by 5", () => {
     // setup
     setDigipet(INITIAL_DIGIPET);
@@ -145,5 +168,36 @@ describe("walkDigipet", () => {
 
     // assert
     expect(getDigipet()).toHaveProperty("nutrition", 0);
+  });
+});
+
+describe("ignoreDigipet", () => {
+  it("decreases digipet nutrition, discipline and happiness by 10", () => {
+    // setup
+    setDigipet(INITIAL_DIGIPET);
+    expect(getDigipet()).toStrictEqual(INITIAL_DIGIPET);
+
+    // act
+    ignoreDigipet();
+
+    // assert
+    expect(getDigipet()).toStrictEqual({
+      happiness: INITIAL_DIGIPET.happiness - 10,
+      nutrition: INITIAL_DIGIPET.nutrition - 10,
+      discipline: INITIAL_DIGIPET.discipline - 10,
+    });
+  });
+
+  it("cannot decrease nutrition, discipline and happiness below 0", () => {
+    // setup
+    setDigipet({ happiness: 5, nutrition: 5, discipline: 5 });
+
+    // act
+    ignoreDigipet();
+
+    // assert
+    expect(getDigipet()).toHaveProperty("nutrition", 0);
+    expect(getDigipet()).toHaveProperty("discipline", 0);
+    expect(getDigipet()).toHaveProperty("happiness", 0);
   });
 });

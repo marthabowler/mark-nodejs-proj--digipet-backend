@@ -12,8 +12,6 @@ import {
  * These update the underlying digipet by using the functions defined in model.ts
  */
 
-export function feedDigipet(): void {}
-
 export function hatchDigipet(): Digipet {
   if (getDigipet()) {
     throw new Error("Can't hatch a digipet when you already have one!");
@@ -25,7 +23,29 @@ export function hatchDigipet(): Digipet {
   }
 }
 
-export function trainDigipet(): void {}
+export function rehomeDigipet(): Digipet | undefined {
+  if (getDigipet()) {
+    setDigipet(undefined);
+    return;
+  } else {
+    throw new Error("You don't have a digipet! Hatch a new one!");
+  }
+}
+
+export function ignoreDigipet(): void {
+  updateDigipetBounded("nutrition", -10);
+  updateDigipetBounded("discipline", -10);
+  updateDigipetBounded("happiness", -10);
+}
+export function feedDigipet(): void {
+  updateDigipetBounded("nutrition", 10);
+  updateDigipetBounded("discipline", -5);
+}
+
+export function trainDigipet(): void {
+  updateDigipetBounded("discipline", 10);
+  updateDigipetBounded("happiness", -5);
+}
 
 export function walkDigipet(): void {
   updateDigipetBounded("happiness", 10);
