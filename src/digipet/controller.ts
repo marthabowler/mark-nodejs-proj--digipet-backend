@@ -23,10 +23,9 @@ export function hatchDigipet(): Digipet {
   }
 }
 
-export function rehomeDigipet(): Digipet | undefined {
+export function rehomeDigipet(): void {
   if (getDigipet()) {
     setDigipet(undefined);
-    return;
   } else {
     throw new Error("You don't have a digipet! Hatch a new one!");
   }
